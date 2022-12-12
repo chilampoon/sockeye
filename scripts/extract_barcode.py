@@ -436,29 +436,34 @@ def align_adapter(tup):
 
         # Require minimum read1 edit distance
         if adapter1_ed <= args.max_adapter1_ed:
-            qscores, min_qv = find_feature_qscores(
-                barcode, p_alignment, prefix_seq, prefix_qv
-            )
-            if min_qv >= args.min_barcode_qv:
-                chrom_barcode_counts[barcode] += 1
+            try:
+                qscores, min_qv = find_feature_qscores(
+                    barcode, p_alignment, prefix_seq, prefix_qv
+                )
+                if min_qv >= args.min_barcode_qv:
+                    chrom_barcode_counts[barcode] += 1
 
-            # Strip out insertions from alignment to get read barcode sequence
-            barcode = barcode.replace("-", "")
+                # Strip out insertions from alignment to get read barcode sequence
+                barcode = barcode.replace("-", "")
 
-            # Uncorrected cell barcode = CR:Z
-            align.set_tag("CR", barcode, value_type="Z")
-            # Cell barcode quality score = CY:Z
-            align.set_tag("CY", qscores, value_type="Z")
+                # Uncorrected cell barcode = CR:Z
+                align.set_tag("CR", barcode, value_type="Z")
+                # Cell barcode quality score = CY:Z
+                align.set_tag("CY", qscores, value_type="Z")
 
-            # print(read_id)
-            # print(p_alignment.traceback.ref)
-            # print(p_alignment.traceback.comp)
-            # print(p_alignment.traceback.query)
-            # print()
+                # print(read_id)
+                # print(p_alignment.traceback.ref)
+                # print(p_alignment.traceback.comp)
+                # print(p_alignment.traceback.query)
+                # print()
 
-            # Only write BAM entry in output file if it will have CR and CY tags
-            bam_out.write(align)
-
+                # Only write BAM entry in output file if it will have CR and CY tags
+                bam_out.write(align)
+            except Exception as e:
+                print(e)
+                print(align)
+                continue
+                
     bam.close()
     bam_out.close()
 
